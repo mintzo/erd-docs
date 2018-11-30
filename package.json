@@ -1,0 +1,25 @@
+{
+  "name": "erd-docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "demo:express": "node ./demo/express/index.js",
+    "dev": "nodemon ./demo/express/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mintzo/erd-docs.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mintzo/erd-docs/issues"
+  },
+  "homepage": "https://github.com/mintzo/erd-docs#readme",
+  "devDependencies": {
+    "express": "^4.16.4",
+    "nodemon": "^1.18.7"
+  }
+}
