@@ -6,15 +6,20 @@ erdDocs.attachToServer.express({
   expressApp: app,
   configurations: {
     dbType: erdDocs.dbTypes.postgresql,
-    dbConnection:{
+    dbConnection: {
       user: 'postgres',
       host: '127.0.0.1',
-      dbName: 'dbName',
+      dbName: 'simplex_cc_development',
       password: 'postgres',
       port: 5432
     },
-    data:{
-      schemaName:'schemaName'
+    data: {
+      // schemaName:'sell_crypto',
+      schemaName: 'temp_partners',
+      ignoreTables: ['flyway_schema_history'],
+      customConnections: [
+        { table: 'partners', filed: 'name' }
+      ]
     }
   }
 })

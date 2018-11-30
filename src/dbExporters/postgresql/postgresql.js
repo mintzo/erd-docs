@@ -27,7 +27,7 @@ const getJsonSchemas = async ({ configurations }) => {
     let returnSchemas = []
     for (let tableIndex = 0; tableIndex < tableNames.length; tableIndex++) {
       let tableName = tableNames[tableIndex];
-      returnSchemas.push(await getTableSchema({ client, tableName, schemaName }))
+      returnSchemas.push(await getTableSchema({ client, tableName, schemaName, configurations }))
     }
     await client.end()
     return returnSchemas
@@ -37,7 +37,7 @@ const getJsonSchemas = async ({ configurations }) => {
   }
 }
 
-const getTableSchema = async ({ client, tableName, schemaName }) => {
+const getTableSchema = async ({ client, tableName, schemaName, configurations }) => {
   let schemaResponse = await client.query(dbQueries.getTableSchemaQuery({ tableName, schemaName }))
   return schemaResponse.rows.map(row => {
     row.is_foreign_key = row.is_foreign_key == 't'
