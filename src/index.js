@@ -20,6 +20,14 @@ const attachToExpress = ({ expressApp, configurations }) => {
     })()
   })
 
+  expressApp.get(`${configurations.schemaRoutes}/:view/svg`, (req, res) => {
+    (async () => {
+      res.send(await erdDocs.getSvgFromSchema({
+        schema: await erdDocs.getSchemas.json({ configurations }),
+        view: req.params.view
+      }))
+    })()
+  })
 }
 
 

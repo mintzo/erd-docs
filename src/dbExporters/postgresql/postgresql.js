@@ -21,6 +21,9 @@ const getJsonSchemas = async ({ configurations }) => {
     if (!configurations.data.schemaName) { throw new Error('Missing data.schemaName in config') }
     let schemaName = configurations.data.schemaName
     let tableNames = await getTableNames({ client, schemaName })
+    if (configurations.data.ignoreTables) {
+      tableNames = tableNames.filter(tableName => !configurations.data.ignoreTables.includes(tableName))
+    }
     let returnSchemas = []
     for (let tableIndex = 0; tableIndex < tableNames.length; tableIndex++) {
       let tableName = tableNames[tableIndex];
@@ -36,7 +39,12 @@ const getJsonSchemas = async ({ configurations }) => {
 
 const getTableSchema = async ({ client, tableName, schemaName }) => {
   let schemaResponse = await client.query(dbQueries.getTableSchemaQuery({ tableName, schemaName }))
-  return schemaResponse.rows
+  return schemaResponse.rows.map(row => {
+    row.is_foreign_key = row.is_foreign_key == 't'
+    row.is_primary_key = row.is_primary_key == 't'
+    row.is_unique_key = row.is_unique_key == 't'
+    return row
+  })
 }
 
 
