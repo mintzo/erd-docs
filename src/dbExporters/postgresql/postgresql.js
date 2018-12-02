@@ -43,10 +43,20 @@ const getTableSchema = async ({ client, tableName, schemaName, configurations })
     row.is_foreign_key = row.is_foreign_key == 't'
     row.is_primary_key = row.is_primary_key == 't'
     row.is_unique_key = row.is_unique_key == 't'
+    if (configurations.data.customConnections) {
+      addCustomConnections({ row, tableName, configurations })
+    }
     return row
   })
 }
 
+const addCustomConnections = ({ row, tableName, configurations }) => {
+  configurations.data.customConnections.map(customConnection=>{
+    if(row.column == customConnection.connectToOtherTablesContaining && customConnection.table != tableName){
+      row.customConnection = {...customConnection}
+    }
+  })
+}
 
 const getTableNames = async ({ client, schemaName }) => {
   let tablesResponse = await client.query(dbQueries.getTableNamesQuery(schemaName))
