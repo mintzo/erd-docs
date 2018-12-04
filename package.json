@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "demo:express": "node ./demo/express/index.js",
-    "dev": "nodemon ./demo/express/index.js"
+    "dev": "nodemon --inspect ./demo/express/index.js"
   },
   "repository": {
     "type": "git",

@@ -5,18 +5,22 @@ const getSvgFromJsonSchema = async ({ jsonSchema }) => {
   return nomnoml.renderSvg(nomnomlSchema)
 }
 const jsonSchemaToNomnoml = ({ jsonSchema }) => {
-  let convertedSchema = jsonSchema.map(tableSchema => creatNomnomlTable({ tableSchema }))
+  let convertedSchema = jsonSchema.tables.map(tableSchema => creatNomnomlTable({ tableSchema }))
   let tableSchemas = convertedSchema.map(convertedTable => convertedTable.table)
   let tableConnections = convertedSchema.map(convertedTable => convertedTable.tableConnections.join('\n'))
+  let typesTables = createNomnomlTypes({ types: jsonSchema.types })
   let nomnomlSyntax = `
   #fontSize: 10
   #spacing: 10
   #leading: 2
   
-  [<frame>${jsonSchema[0][0].schema}|
+  [<frame>${jsonSchema.name}|
     ${tableSchemas.join('\n')}
     ${tableConnections.join('\n')}
-  ]`
+
+  ]
+  ${typesTables}
+  `
   return nomnomlSyntax
 }
 const createProperties = (properties) => {
@@ -35,5 +39,17 @@ const creatNomnomlTable = ({ tableSchema }) => {
     tableSchema.filter(column => column.customConnection).map(filed => `[${filed.customConnection.table}] -- [${tableName}]`)
   ]
   return { table, tableConnections }
+}
+
+const createNomnomlTypes = ({ types }) => {
+  if (types.length == 0) { return '' }
+  let typeTables = types.map(type => createNomnomlType({ type })).join('\n')
+  return `[<note> Types |
+   ${typeTables} 
+  ]`
+}
+
+const createNomnomlType = ({ type }) => {
+  return `[${type.name} | ${type.values.join(';')}]`
 }
 module.exports = { getSvgFromJsonSchema, jsonSchemaToNomnoml }

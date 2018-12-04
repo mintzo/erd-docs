@@ -29,12 +29,45 @@ const getJsonSchemas = async ({ configurations }) => {
       let tableName = tableNames[tableIndex];
       returnSchemas.push(await getTableSchema({ client, tableName, schemaName, configurations }))
     }
+    let jsonSchema = {
+      tables: returnSchemas, types: await setEnumTypes({ client, tableSchemas: returnSchemas, configurations }), name: configurations.data.schemaName
+    }
     await client.end()
-    return returnSchemas
+    return jsonSchema
   } catch (error) {
     console.error('DB Connection Problem:')
     console.error(error)
   }
+}
+
+const setEnumTypes = async ({ client, tableSchemas, configurations }) => {
+  let enumResponse = (await client.query(dbQueries.getEnumTypesQuery())).rows
+  let DBEnums = enumResponse.reduce((savedEnums, currentEnum) => {
+    if (!savedEnums) {
+      savedEnums = [currentEnum.enumtype]
+    } else {
+      if (!savedEnums.includes(currentEnum.enumtype)) {
+        savedEnums.push(currentEnum.enumtype)
+      }
+    }
+    return savedEnums
+  }, [])
+  let usedEnumsInSchema = []
+  tableSchemas.forEach(tableSchema => {
+    tableSchema.forEach(filed => {
+      if (DBEnums.includes(filed.data_type_name) && !usedEnumsInSchema.includes(filed.data_type_name)) {
+        usedEnumsInSchema.push(filed.data_type_name)
+      }
+    })
+  })
+  usedEnumsInSchema = usedEnumsInSchema.map(enumName => {
+    let enumObject = {
+      name: enumName,
+      values: enumResponse.filter(DBEnum => DBEnum.enumtype == enumName).map(DBEnum => DBEnum.enumlabel)
+    }
+    return enumObject
+  })
+  return usedEnumsInSchema
 }
 
 const getTableSchema = async ({ client, tableName, schemaName, configurations }) => {
@@ -51,9 +84,9 @@ const getTableSchema = async ({ client, tableName, schemaName, configurations })
 }
 
 const addCustomConnections = ({ row, tableName, configurations }) => {
-  configurations.data.customConnections.map(customConnection=>{
-    if(row.column == customConnection.connectToOtherTablesContaining && customConnection.table != tableName){
-      row.customConnection = {...customConnection}
+  configurations.data.customConnections.map(customConnection => {
+    if (row.column == customConnection.connectToOtherTablesContaining && customConnection.table != tableName) {
+      row.customConnection = { ...customConnection }
     }
   })
 }
