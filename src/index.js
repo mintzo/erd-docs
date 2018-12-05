@@ -1,5 +1,6 @@
 const erdDocs = require('./erdDocs.js')
 const { dbTypes } = require('./dbExporters/index')
+const { views } = require('./views/index.js')
 const defaultConfigurations = {
   serveUrl: '/docUrl',
   schemaRoutes: '/erd'
@@ -11,7 +12,12 @@ const attachToExpress = ({ expressApp, configurations }) => {
   configurations = setConfigurations({ configurations })
 
   expressApp.get(configurations.serveUrl, (req, res) => {
-    res.send('WORKING !')
+    (async () => {
+      res.send(await erdDocs.getSvgFromSchema({
+        schema: await erdDocs.getSchemas.json({ configurations }),
+        view: views.nomnoml
+      }))
+    })()
   })
 
   expressApp.get(`${configurations.schemaRoutes}/json`, (req, res) => {
