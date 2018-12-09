@@ -14,17 +14,16 @@ erdDocs.attachToServer.express({
       port: 5432
     },
     data: {
-      // schemaName:'sell_crypto',
-      schemaName: 'temp_partners',
+      schemaName: 'schema_name',
       ignoreTables: ['flyway_schema_history'],
       customConnections: [
-        { table: 'partners', filed: 'name' }
+        { table: 'tableName', filed: 'name' }
       ]
     }
   }
 })
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
