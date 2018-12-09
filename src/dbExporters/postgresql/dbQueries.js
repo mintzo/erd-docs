@@ -1,5 +1,4 @@
-const getTableSchemaQuery = ({ schemaName, tableName }) => {
-  return `
+const getTableSchemaQuery = ({ schemaName, tableName }) => `
   SELECT
   n.nspname as schema,
   c.relname as table,
@@ -66,21 +65,16 @@ WHERE c.relkind = 'r'::char
   AND f.attnum > 0 
 ORDER BY f.attnum
 ;`
-}
-const getTableNamesQuery = (schemaName) => {
-  return `
+const getTableNamesQuery = (schemaName) => `
   SELECT table_name
   FROM INFORMATION_SCHEMA.TABLES 
   WHERE table_schema = '${schemaName}';`
-}
-const getEnumTypesQuery = () => {
-  return `
+const getEnumTypesQuery = () => `
   SELECT pg_type.typname AS enumtype, 
      pg_enum.enumlabel AS enumlabel
   FROM pg_type 
   JOIN pg_enum 
      ON pg_enum.enumtypid = pg_type.oid;`
-}
 
 module.exports = {
   getTableNamesQuery, getTableSchemaQuery, getEnumTypesQuery

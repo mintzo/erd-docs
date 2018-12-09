@@ -6,7 +6,7 @@ const getJsonSchemas = async ({ configurations }) => {
   if (!configurations.dbConnection) { throw new Error('Missing dbConnections In config') }
 
   try {
-    let pgConnectionSettings = {
+    const pgConnectionSettings = {
       user: configurations.dbConnection.user,
       host: configurations.dbConnection.host,
       database: configurations.dbConnection.dbName,
@@ -19,18 +19,18 @@ const getJsonSchemas = async ({ configurations }) => {
 
     if (!configurations.data) { throw new Error('Missing data in config') }
     if (!configurations.data.schemaName) { throw new Error('Missing data.schemaName in config') }
-    let schemaName = configurations.data.schemaName
+    const schemaName = configurations.data.schemaName
     let tableNames = await getTableNames({ client, schemaName })
     if (configurations.data.ignoreTables) {
       tableNames = tableNames.filter(tableName => !configurations.data.ignoreTables.includes(tableName))
     }
-    let returnSchemas = []
+    const returnSchemas = []
     for (let tableIndex = 0; tableIndex < tableNames.length; tableIndex++) {
-      let tableName = tableNames[tableIndex];
+      const tableName = tableNames[tableIndex];
       returnSchemas.push(await getTableSchema({ client, tableName, schemaName, configurations }))
     }
-    let jsonSchema = {
-      tables: returnSchemas, types: await setEnumTypes({ client, tableSchemas: returnSchemas, configurations }), name: configurations.data.schemaName
+    const jsonSchema = {
+      tables: returnSchemas, types: await setEnumTypes({ client, tableSchemas: returnSchemas }), name: configurations.data.schemaName
     }
     await client.end()
     return jsonSchema
@@ -40,16 +40,14 @@ const getJsonSchemas = async ({ configurations }) => {
   }
 }
 
-const setEnumTypes = async ({ client, tableSchemas, configurations }) => {
-  let enumResponse = (await client.query(dbQueries.getEnumTypesQuery())).rows
-  let DBEnums = enumResponse.reduce((savedEnums, currentEnum) => {
+const setEnumTypes = async ({ client, tableSchemas }) => {
+  const enumResponse = (await client.query(dbQueries.getEnumTypesQuery())).rows
+  const DBEnums = enumResponse.reduce((savedEnums, currentEnum) => {
     if (!savedEnums) {
       savedEnums = [currentEnum.enumtype]
-    } else {
-      if (!savedEnums.includes(currentEnum.enumtype)) {
+    } else if (!savedEnums.includes(currentEnum.enumtype)) {
         savedEnums.push(currentEnum.enumtype)
       }
-    }
     return savedEnums
   }, [])
   let usedEnumsInSchema = []
@@ -61,7 +59,7 @@ const setEnumTypes = async ({ client, tableSchemas, configurations }) => {
     })
   })
   usedEnumsInSchema = usedEnumsInSchema.map(enumName => {
-    let enumObject = {
+    const enumObject = {
       name: enumName,
       values: enumResponse.filter(DBEnum => DBEnum.enumtype == enumName).map(DBEnum => DBEnum.enumlabel)
     }
@@ -71,7 +69,7 @@ const setEnumTypes = async ({ client, tableSchemas, configurations }) => {
 }
 
 const getTableSchema = async ({ client, tableName, schemaName, configurations }) => {
-  let schemaResponse = await client.query(dbQueries.getTableSchemaQuery({ tableName, schemaName }))
+  const schemaResponse = await client.query(dbQueries.getTableSchemaQuery({ tableName, schemaName }))
   return schemaResponse.rows.map(row => {
     row.is_foreign_key = row.is_foreign_key == 't'
     row.is_primary_key = row.is_primary_key == 't'
@@ -84,7 +82,7 @@ const getTableSchema = async ({ client, tableName, schemaName, configurations })
 }
 
 const addCustomConnections = ({ row, tableName, configurations }) => {
-  configurations.data.customConnections.map(customConnection => {
+  configurations.data.customConnections.forEach(customConnection => {
     if (row.column == customConnection.connectToOtherTablesContaining && customConnection.table != tableName) {
       row.customConnection = { ...customConnection }
     }
@@ -92,7 +90,7 @@ const addCustomConnections = ({ row, tableName, configurations }) => {
 }
 
 const getTableNames = async ({ client, schemaName }) => {
-  let tablesResponse = await client.query(dbQueries.getTableNamesQuery(schemaName))
+  const tablesResponse = await client.query(dbQueries.getTableNamesQuery(schemaName))
   return tablesResponse.rows.map(row => row.table_name)
 }
 

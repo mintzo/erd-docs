@@ -1,10 +1,7 @@
 const { getJsonSchema } = require('./dbExporters/index.js')
 const { getSvgFromSchema } = require('./views/index.js')
 
-const generateDocs = async ({ configurations }) => {
-
-  return ``
-}
+const generateDocs = async ({ configurations }) => configurations
 
 
 const getSchemas = { json: getJsonSchema }

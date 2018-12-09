@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "demo:express": "node ./demo/express/index.js",
-    "dev": "nodemon --inspect ./demo/express/index.js"
+    "dev": "nodemon --inspect ./demo/express/index.js",
+    "lint": "eslint .",
+    "precommit": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -19,7 +21,10 @@
   },
   "homepage": "https://github.com/mintzo/erd-docs#readme",
   "devDependencies": {
+    "eslint": "^5.10.0",
+    "eslint-config-node": "^4.0.0",
     "express": "^4.16.4",
+    "husky": "^1.2.0",
     "nodemon": "^1.18.7"
   },
   "dependencies": {
